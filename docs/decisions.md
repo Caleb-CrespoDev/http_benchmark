@@ -18,17 +18,24 @@
   `/reset` HTTP endpoint and running the stress-test tool.
 - 2026-07-31: End-to-end Semaphore -> target server connectivity confirmed
   via `ansible/playbooks/ping.yml` (ok=5, no failures).
+- 2026-07-31: `http_benchmark` GitHub repo made public — Semaphore/target
+  server clone it over plain HTTPS, no deploy key needed.
+- 2026-07-31: App server (`noteb`, 192.168.1.4) hosts Docker, Postgres,
+  the apps, and monitoring. Semaphore (192.168.1.5) is where load-test
+  runs are triggered from — Ansible's Phase 6 playbook makes HTTP calls
+  from there to `noteb`'s app port, no SSH/become needed for that step.
+  `ufw` on `noteb` is intentionally left inactive.
+- 2026-07-31: Reset endpoint contract = `POST /reset` on each app,
+  `TRUNCATE TABLE items RESTART IDENTITY`.
+- 2026-07-31: Apps run one-at-a-time, both on port 4000, both limited to
+  2 vCPU / 4GiB (`docker/apps/docker-compose.yml`, Compose profiles
+  `node`/`go` sharing container name `bench-app`).
+- 2026-07-31: Shared schema = single `items` table (`id`, `value`,
+  `created_at`), `docker/postgres/init/001-schema.sql`.
 
 ## Open questions (to resolve when the relevant phase starts)
 - Load-test tool: k6 vs hey vs wrk2 vs Locust vs autocannon? (Phase 6)
 - Exact load matrix beyond the two examples given (1000/10s, 2000/10s) —
   how many steps, max load, ramp vs fixed-rate? (Phase 6)
-- Reset endpoint contract: exact path/method (e.g. `GET /reset` vs
-  `POST /reset`) and expected response, so both apps and the Ansible
-  playbook agree. (Phase 4/6)
-- Whether apps run one-at-a-time (isolated resource envelope) or need to be
-  strictly identical container resource limits (cpu/mem) for a fair
-  comparison — recommend explicit `--cpus`/`--memory` limits on both.
-  (Phase 4)
 - Grafana dashboard scope: one dashboard per app vs single side-by-side
   comparison dashboard. (Phase 5/8)

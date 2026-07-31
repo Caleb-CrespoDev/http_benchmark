@@ -73,9 +73,9 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
 - [x] **Phase 3 — Shared Database** *(manual, not Ansible)*: PostgreSQL 18.4
       + postgres_exporter running on `noteb`. Schema deferred to Phase 4.
       See `phases/03-database.md`
-- [ ] **Phase 4 — Benchmark Apps** *(manual build/deploy)*: equivalent
-      Node/Express and Go apps, each exposing a `/reset` endpoint that
-      Phase 6's Ansible playbook calls. See `phases/04-apps.md`
+- [x] **Phase 4 — Benchmark Apps** *(manual build/deploy)*: Node 24.18.1
+      LTS + Express and Go 1.26.5 apps built, both exposing `/healthz`,
+      `/items`, `POST /reset`, `/metrics`. See `phases/04-apps.md`
 - [ ] **Phase 5 — Monitoring Stack** *(manual, not Ansible)*: Prometheus +
       Grafana on target server, scrape configs, base dashboards.
       See `phases/05-monitoring.md`
@@ -92,5 +92,4 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       See `phases/08-results-report.md`
 
 ## Next up
-Phase 4 — design the shared schema and build the Node/Express and Go
-benchmark apps.
+Phase 5 — Prometheus + Grafana on `noteb`.
