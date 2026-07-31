@@ -12,8 +12,8 @@ do not trust model knowledge for this, as it may be stale.
 | Node.js | 24.18.1 (LTS) | 2026-07-31 | benchmark app |
 | Express | ^4.21.2 | 2026-07-31 | benchmark app |
 | Go | 1.26.5 | 2026-07-31 | benchmark app |
-| Prometheus | TBD | | target server |
-| Grafana | TBD | | target server |
+| Prometheus | 3.13.2 | 2026-07-31 | target server |
+| Grafana | 13.1.1 | 2026-07-31 | target server |
 | node_exporter | 1.12.1 | 2026-07-31 | host metrics |
 | cAdvisor | 0.60.5 | 2026-07-31 | container metrics |
 | postgres_exporter | 0.20.1 | 2026-07-31 | DB metrics |

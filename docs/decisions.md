@@ -38,10 +38,17 @@
   `PGPASSWORD` (what the apps read), not `POSTGRES_PASSWORD` (Postgres'
   own env var name) — easy to mix up since both `.env` files hold the
   same password value.
+- 2026-07-31: Prometheus + Grafana stood up on `noteb`, all targets
+  confirmed "up" (node, cadvisor, postgres; bench-app down when idle,
+  expected). Found and fixed two bugs: bind-mounted data dirs needed
+  chown to each image's internal UID (Prometheus `65534:65534`, Grafana
+  `472:0`), and Grafana needed `network_mode: host` to reach Prometheus at
+  `localhost:9090` (was on bridge networking, couldn't reach it at all).
+- 2026-07-31: Grafana dashboard scope = single combined "Benchmark
+  Overview" dashboard (not split per-app/per-resource), covering host,
+  container, DB, and app metrics together.
 
 ## Open questions (to resolve when the relevant phase starts)
 - Load-test tool: k6 vs hey vs wrk2 vs Locust vs autocannon? (Phase 6)
 - Exact load matrix beyond the two examples given (1000/10s, 2000/10s) —
   how many steps, max load, ramp vs fixed-rate? (Phase 6)
-- Grafana dashboard scope: one dashboard per app vs single side-by-side
-  comparison dashboard. (Phase 5/8)

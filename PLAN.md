@@ -76,9 +76,10 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
 - [x] **Phase 4 — Benchmark Apps** *(manual build/deploy)*: Node 24.18.1
       LTS + Express and Go 1.26.5 apps built, both exposing `/healthz`,
       `/items`, `POST /reset`, `/metrics`. See `phases/04-apps.md`
-- [ ] **Phase 5 — Monitoring Stack** *(manual, not Ansible)*: Prometheus +
-      Grafana on target server, scrape configs, base dashboards.
-      See `phases/05-monitoring.md`
+- [x] **Phase 5 — Monitoring Stack** *(manual, not Ansible)*: Prometheus
+      3.13.2 + Grafana 13.1.1 running on `noteb`, all targets up, combined
+      "Benchmark Overview" dashboard provisioned. See
+      `phases/05-monitoring.md`
 - [ ] **Phase 6 — Load Testing** *(the only automated phase)*: pick + install
       load-test tool, define load matrix (1000/10s, 2000/10s, ...), Ansible
       playbook: call app's `/reset` endpoint -> run stress-test tool ->
@@ -92,4 +93,5 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       See `phases/08-results-report.md`
 
 ## Next up
-Phase 5 — Prometheus + Grafana on `noteb`.
+Phase 6 — pick the load-test tool, define the load matrix, and write
+`ansible/playbooks/run-loadtest.yml`.
