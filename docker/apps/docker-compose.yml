@@ -1,0 +1,42 @@
+services:
+  node-express:
+    build: ../../apps/node-express
+    image: bench-node-express:latest
+    container_name: bench-app
+    restart: "no"
+    profiles: ["node"]
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      PORT: 4000
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: bench
+      PGDATABASE: bench
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4g
+
+  go-http:
+    build: ../../apps/go-http
+    image: bench-go-http:latest
+    container_name: bench-app
+    restart: "no"
+    profiles: ["go"]
+    network_mode: host
+    env_file:
+      - .env
+    environment:
+      PORT: 4000
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: bench
+      PGDATABASE: bench
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4g
