@@ -70,9 +70,9 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
 - [x] **Phase 2 — Server Bootstrap** *(manual, not Ansible)*: base packages,
       Docker on target server, `/opt/bench` layout, node_exporter + cAdvisor
       running. See `phases/02-server-bootstrap.md`
-- [ ] **Phase 3 — Shared Database** *(manual, not Ansible)*: PostgreSQL
-      container, schema, postgres_exporter. Reset happens via an app-side
-      HTTP endpoint, not an Ansible/DB playbook. See `phases/03-database.md`
+- [x] **Phase 3 — Shared Database** *(manual, not Ansible)*: PostgreSQL 18.4
+      + postgres_exporter running on `noteb`. Schema deferred to Phase 4.
+      See `phases/03-database.md`
 - [ ] **Phase 4 — Benchmark Apps** *(manual build/deploy)*: equivalent
       Node/Express and Go apps, each exposing a `/reset` endpoint that
       Phase 6's Ansible playbook calls. See `phases/04-apps.md`
@@ -92,4 +92,5 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       See `phases/08-results-report.md`
 
 ## Next up
-Phase 3 — stand up the shared PostgreSQL database on `noteb`.
+Phase 4 — design the shared schema and build the Node/Express and Go
+benchmark apps.
