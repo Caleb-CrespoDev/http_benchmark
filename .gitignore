@@ -1,0 +1,29 @@
+# Secrets — never commit these
+**/secrets/
+**/.env
+**/*.env
+*.pem
+*.key
+id_ed25519*
+*_ed25519*
+*.ppk
+
+# Ansible
+*.retry
+ansible/inventory/*.local.yml
+ansible/vault_pass*
+
+# Semaphore local runtime data
+semaphore/data/
+
+# App build artifacts
+apps/*/node_modules/
+apps/*/dist/
+apps/go-http/bin/
+
+# Results / raw test output (keep summaries, ignore large raw dumps)
+results/raw/
+
+# OS / editor cruft
+.DS_Store
+*.swp
