@@ -17,3 +17,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
+    container_name: postgres-exporter
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATA_SOURCE_NAME: "postgresql://bench:${POSTGRES_PASSWORD}@postgres:5432/bench?sslmode=disable"
+    ports:
+      - "127.0.0.1:9187:9187"
+    depends_on:
+      postgres:
+        condition: service_healthy
