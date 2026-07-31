@@ -1,26 +1,24 @@
-# Phase 5 — Monitoring Stack (Prometheus + Grafana)
+# Phase 5 — Monitoring Stack (MANUAL, outside Ansible)
 
-Status: **NOT STARTED**
+Status: **YOUR RESPONSIBILITY** (not automated)
 
-## Goal
-Full observability of host, containers, database, and both apps during
-every test run.
+## Why this isn't in Ansible
+Running Prometheus/Grafana as containers and provisioning them requires
+docker-level operations that Ansible/Semaphore doesn't perform for this
+project. You set this up by hand.
 
-## Todo
-- [ ] Confirm Prometheus version with user
-- [ ] Confirm Grafana version with user
-- [ ] Ansible role: run Prometheus as a Docker container, config scraping:
+## What needs to exist before Phase 6 can run
+- [ ] Prometheus running, scraping:
       - node_exporter (host)
       - cAdvisor (containers)
-      - postgres_exporter (DB)
+      - postgres_exporter (DB), if set up
       - node-express app `/metrics`
       - go-http app `/metrics`
-- [ ] Ansible role: run Grafana as a Docker container, provision Prometheus
-      as a datasource automatically (not manual UI click-through)
-- [ ] Build base dashboards: host resources, container resources, DB
-      (connections/queries/locks), app (request rate, latency histogram,
-      error rate)
-- [ ] Confirm retention/storage settings are enough for the full test
-      matrix without needing manual pruning mid-session
-- [ ] Verify all targets show as "up" in Prometheus before any load test
-      runs
+- [ ] Grafana running, Prometheus datasource configured
+- [ ] Base dashboards: host resources, container resources, DB, app
+      (request rate, latency histogram, error rate)
+- [ ] All targets showing "up" in Prometheus before any load test runs
+
+## Notes
+- Ansible's only observability-adjacent job (Phase 6) is triggering test
+  runs — it doesn't deploy or configure this stack.

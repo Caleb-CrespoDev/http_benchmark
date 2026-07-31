@@ -1,26 +1,22 @@
-# Phase 3 — Shared Database (PostgreSQL)
+# Phase 3 — Shared Database (MANUAL, outside Ansible)
 
-Status: **NOT STARTED**
+Status: **YOUR RESPONSIBILITY** (not automated)
 
-## Goal
-One PostgreSQL instance, shared by both apps, that can be reset to an
-identical clean state before every test run.
+## Why this isn't in Ansible
+Standing up and configuring Postgres requires docker-level operations that
+Ansible/Semaphore doesn't perform for this project. You set this up by
+hand.
 
-## Todo
-- [ ] Confirm PostgreSQL version with user before installing
-- [ ] Decide + record reset strategy (see docs/decisions.md open question):
-      recommend a `reset` playbook that drops & recreates the schema and
-      re-applies migrations/seed data — faster and simpler than recreating
-      the whole container each run
-- [ ] Define schema needed for the benchmark endpoints (kept intentionally
-      simple — e.g. a single table both apps read/write to)
-- [ ] Ansible role: run PostgreSQL as a Docker container with a named
-      volume, expose only to the server's internal network (not public)
-- [ ] Init/migration SQL committed to `ansible/roles/postgres/files/`
-- [ ] `postgres_exporter` container wired to Prometheus
-- [ ] Ansible playbook: `reset-db.yml` — drop/recreate schema + reseed,
-      idempotent, safe to run before every single test
-- [ ] Verify: connect from local machine (or via ssh tunnel) with `psql`,
-      confirm schema present
-- [ ] Wrap as a Semaphore template ("Reset DB") that can be run standalone
-      or as a pre-step in the load-test template
+## What needs to exist before Phase 6 can run
+- [ ] PostgreSQL running (version confirmed by you), shared by both apps
+- [ ] Schema for the benchmark endpoints in place
+- [ ] `postgres_exporter` wired to Prometheus, if you want DB metrics
+- [ ] A reset mechanism that does **not** require Ansible to touch Docker
+      or the DB directly — see Phase 4: the reset is exposed as an HTTP
+      endpoint on each app, and Phase 6's Ansible playbook resets state by
+      calling that endpoint (e.g. `GET /reset`), nothing more.
+
+## Notes
+- The reset strategy question from `docs/decisions.md` is answered: reset
+  happens app-side (the endpoint handles it against the DB internally),
+  not via a standalone Ansible/Semaphore DB playbook.

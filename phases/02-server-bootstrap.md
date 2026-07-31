@@ -1,32 +1,24 @@
-# Phase 2 — Server Bootstrap
+# Phase 2 — Server Bootstrap (MANUAL, outside Ansible)
 
-Status: **NOT STARTED**
+Status: **YOUR RESPONSIBILITY** (not automated)
 
-## Goal
-Get the target server (192.168.1.4) from empty Ubuntu 26.04 to a machine
-ready to host Docker containers, with base host-level observability.
+## Why this isn't in Ansible
+Ansible/Semaphore for this project never uses `become`/sudo. All privileged
+setup on the target server — Docker install, base packages, firewall,
+exporters — is done by hand, once, outside this repo's automation.
 
-## Todo
-- [ ] Ansible inventory entry + group_vars for target server
-- [ ] Playbook: apt update/upgrade, base packages (curl, git, ca-certificates, etc.)
-- [ ] Install Docker Engine + Docker Compose plugin
-- [ ] Confirm Docker version with user before installing
-- [ ] Add `keileb` to the `docker` group so Ansible/Semaphore can manage
-      containers without root on every task (still needs `become` for the
-      install steps themselves)
-- [ ] Set up directory layout on server for persistent data
-      (e.g. `/opt/bench/{postgres,prometheus,grafana,apps}`)
-- [ ] Configure firewall (ufw) — open only needed ports (app ports, Grafana,
-      Prometheus if remote scraping needed, SSH)
-- [ ] Install + start `node_exporter` (host metrics) as a systemd service or
-      container
-- [ ] Install + start `cAdvisor` (container metrics) — Docker-compatible
-      setup
-- [ ] Verify both exporters respond locally (`curl localhost:9100/metrics`,
-      `curl localhost:8080/metrics`)
-- [ ] Run this whole phase as a Semaphore task, confirm idempotency
-      (re-run playbook, no errors/changes second time)
+## What needs to exist before later phases can run
+- [ ] Docker Engine + Compose plugin installed
+- [ ] `keileb` added to the `docker` group (so app containers can be run
+      without sudo, if needed for manual deploys)
+- [ ] Base packages (curl, git, ca-certificates, etc.)
+- [ ] Directory layout for persistent data (e.g. `/opt/bench/{postgres,prometheus,grafana,apps}`)
+- [ ] Firewall (ufw) — only needed ports open (app ports, Grafana,
+      Prometheus if remote scraping, SSH)
+- [ ] `node_exporter` running (host metrics)
+- [ ] `cAdvisor` running (container metrics)
 
 ## Notes
-- No passwordless sudo on this server — playbooks need `become: true` and
-  Semaphore must supply the become password from its secret store.
+- Nothing here is run by Semaphore. This checklist exists just so you have
+  a record of what the target server needs before Phases 3-5's manual
+  setup and Phase 6's automated load testing.
