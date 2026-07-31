@@ -12,6 +12,7 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - /opt/bench/postgres:/var/lib/postgresql
+      - ./init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U bench -d bench"]
       interval: 5s
