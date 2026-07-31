@@ -38,6 +38,26 @@ app.post('/items', async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
+app.put('/items/:id', async (req, res) => {
+  const { value } = req.body;
+  const result = await pool.query(
+    'UPDATE items SET value = $1 WHERE id = $2 RETURNING id, value, created_at',
+    [value, req.params.id]
+  );
+  if (result.rowCount === 0) {
+    return res.status(404).json({ error: 'not found' });
+  }
+  res.json(result.rows[0]);
+});
+
+app.delete('/items/:id', async (req, res) => {
+  const result = await pool.query('DELETE FROM items WHERE id = $1', [req.params.id]);
+  if (result.rowCount === 0) {
+    return res.status(404).json({ error: 'not found' });
+  }
+  res.status(204).end();
+});
+
 app.post('/reset', async (req, res) => {
   await pool.query('TRUNCATE TABLE items RESTART IDENTITY');
   res.json({ status: 'reset' });

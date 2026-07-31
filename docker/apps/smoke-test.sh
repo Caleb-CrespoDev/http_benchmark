@@ -38,6 +38,7 @@ fi
 
 echo "== items: write =="
 check "POST /items" 201 -X POST -H 'Content-Type: application/json' -d '{"value":"smoke-test"}' "http://$HOST/items"
+item_id=$(python3 -c "import json; print(json.load(open('/tmp/smoke-body'))['id'])")
 
 echo "== items: read back =="
 check "GET /items (1 row)" 200 "http://$HOST/items"
@@ -47,6 +48,35 @@ if [ "$count" != "1" ]; then
   fail=1
 else
   echo "OK    1 item after write"
+fi
+
+echo "== items: update =="
+check "PUT /items/$item_id" 200 -X PUT -H 'Content-Type: application/json' -d '{"value":"smoke-test-updated"}' "http://$HOST/items/$item_id"
+value=$(python3 -c "import json; print(json.load(open('/tmp/smoke-body'))['value'])")
+if [ "$value" != "smoke-test-updated" ]; then
+  echo "FAIL  expected updated value, got $value"
+  fail=1
+else
+  echo "OK    value updated"
+fi
+
+echo "== items: update missing id =="
+check "PUT /items/999999999" 404 -X PUT -H 'Content-Type: application/json' -d '{"value":"x"}' "http://$HOST/items/999999999"
+
+echo "== items: delete =="
+check "DELETE /items/$item_id" 204 -X DELETE "http://$HOST/items/$item_id"
+
+echo "== items: delete missing id =="
+check "DELETE /items/$item_id" 404 -X DELETE "http://$HOST/items/$item_id"
+
+echo "== items: empty after delete =="
+check "GET /items (empty again)" 200 "http://$HOST/items"
+count=$(python3 -c "import json,sys; print(len(json.load(open('/tmp/smoke-body'))))")
+if [ "$count" != "0" ]; then
+  echo "FAIL  expected 0 items after delete, got $count"
+  fail=1
+else
+  echo "OK    0 items after delete"
 fi
 
 echo "== metrics =="

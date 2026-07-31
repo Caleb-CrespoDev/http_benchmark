@@ -99,6 +99,43 @@ func createItemHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(it)
 }
 
+func updateItemHandler(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Value string `json:"value"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var it item
+	err := pool.QueryRow(
+		r.Context(),
+		"UPDATE items SET value = $1 WHERE id = $2 RETURNING id, value, created_at",
+		body.Value, r.PathValue("id"),
+	).Scan(&it.ID, &it.Value, &it.CreatedAt)
+	if err != nil {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(it)
+}
+
+func deleteItemHandler(w http.ResponseWriter, r *http.Request) {
+	tag, err := pool.Exec(r.Context(), "DELETE FROM items WHERE id = $1", r.PathValue("id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if tag.RowsAffected() == 0 {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func resetHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := pool.Exec(r.Context(), "TRUNCATE TABLE items RESTART IDENTITY")
 	if err != nil {
@@ -131,6 +168,8 @@ func main() {
 	mux.HandleFunc("GET /healthz", withMetrics("/healthz", healthzHandler))
 	mux.HandleFunc("GET /items", withMetrics("/items", listItemsHandler))
 	mux.HandleFunc("POST /items", withMetrics("/items", createItemHandler))
+	mux.HandleFunc("PUT /items/{id}", withMetrics("/items/{id}", updateItemHandler))
+	mux.HandleFunc("DELETE /items/{id}", withMetrics("/items/{id}", deleteItemHandler))
 	mux.HandleFunc("POST /reset", withMetrics("/reset", resetHandler))
 	mux.Handle("GET /metrics", promhttp.Handler())
 
