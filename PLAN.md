@@ -27,9 +27,10 @@ stress-test tool, triggered from the existing (remote) Semaphore instance.
   Project/Inventory/Repository against that existing instance.
 - SSH key: dedicated key `~/.ssh/simple_http_bench_ed25519` (no passphrase,
   used only for this project), already installed in the server's
-  `authorized_keys` and reused as the GitHub deploy key for this
-  (currently private) repo. Connection verified 2026-07-30; end-to-end
-  Semaphore ping confirmed 2026-07-31.
+  `authorized_keys`. Connection verified 2026-07-30; end-to-end Semaphore
+  ping confirmed 2026-07-31.
+- Repo `http_benchmark` is public on GitHub (was private, opened up
+  2026-07-31) — cloned via plain HTTPS on `noteb`, no deploy key needed.
 - Everything on the target server beyond the automated load-test playbooks
   is installed/configured manually by the user.
 
@@ -66,9 +67,9 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       Inventory, SSH key, Repository) against the existing remote
       Semaphore instance. Connectivity confirmed via ping playbook. See
       `phases/01-connect-semaphore.md`
-- [ ] **Phase 2 — Server Bootstrap** *(manual, not Ansible)*: base packages,
-      Docker on target server, firewall, node exporter + cAdvisor.
-      See `phases/02-server-bootstrap.md`
+- [x] **Phase 2 — Server Bootstrap** *(manual, not Ansible)*: base packages,
+      Docker on target server, `/opt/bench` layout, node_exporter + cAdvisor
+      running. See `phases/02-server-bootstrap.md`
 - [ ] **Phase 3 — Shared Database** *(manual, not Ansible)*: PostgreSQL
       container, schema, postgres_exporter. Reset happens via an app-side
       HTTP endpoint, not an Ansible/DB playbook. See `phases/03-database.md`
@@ -91,6 +92,4 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       See `phases/08-results-report.md`
 
 ## Next up
-Phase 2-5 (server, DB, apps, monitoring) are on you to set up manually.
-Once the apps are up with `/reset` endpoints, come back for Phase 6 —
-picking the load-test tool and writing `run-loadtest.yml`.
+Phase 3 — stand up the shared PostgreSQL database on `noteb`.
