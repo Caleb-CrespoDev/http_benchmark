@@ -32,6 +32,12 @@
   `node`/`go` sharing container name `bench-app`).
 - 2026-07-31: Shared schema = single `items` table (`id`, `value`,
   `created_at`), `docker/postgres/init/001-schema.sql`.
+- 2026-07-31: Both apps smoke-tested end-to-end on `noteb` via
+  `docker/apps/smoke-test.sh` (healthz, reset, write, read-back, metrics)
+  — caught and fixed a real bug: `docker/apps/.env` must use the key
+  `PGPASSWORD` (what the apps read), not `POSTGRES_PASSWORD` (Postgres'
+  own env var name) — easy to mix up since both `.env` files hold the
+  same password value.
 
 ## Open questions (to resolve when the relevant phase starts)
 - Load-test tool: k6 vs hey vs wrk2 vs Locust vs autocannon? (Phase 6)

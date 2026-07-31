@@ -32,5 +32,7 @@ queries/schema, same response payloads — one in Node.js+Express, one in Go
 - [x] Decision: one-at-a-time — both apps share container name `bench-app`
       and Compose profiles (`node` / `go`) so only one can run at a time,
       both on port 4000
-- [x] Smoke tested locally (curl `/healthz`, `/metrics` for both); built
-      successfully on `noteb`
+- [x] Smoke tested end-to-end on `noteb` via `docker/apps/smoke-test.sh`
+      (healthz, reset, write, read-back, metrics) for both apps — caught
+      and fixed a `.env` key mismatch (`PGPASSWORD` vs `POSTGRES_PASSWORD`)
+      along the way
