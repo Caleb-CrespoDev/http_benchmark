@@ -1,0 +1,107 @@
+---
+# Load test: 10000 req/10s (1000 req/s total), split across all 5 endpoints.
+# Run reset.yml separately first if you want a clean DB.
+- name: Load test - 10000 req per 10s
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    app: "node"  # set via Semaphore survey variable: node | go — labels results only
+    app_host: "192.168.1.4"
+    app_port: 4000
+    duration: "10s"
+
+  tasks:
+    - name: Set run timestamp (computed once, not re-evaluated per task)
+      ansible.builtin.set_fact:
+        run_ts: "{{ lookup('pipe','date +%Y%m%dT%H%M%S') }}"
+
+    - name: Set results directory
+      ansible.builtin.set_fact:
+        results_dir: "{{ lookup('env','HOME') }}/bench-results/{{ app }}-10000-{{ run_ts }}"
+
+    - name: Create results directory
+      ansible.builtin.file:
+        path: "{{ results_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Seed one item for PUT/DELETE targets
+      ansible.builtin.uri:
+        url: "http://{{ app_host }}:{{ app_port }}/items"
+        method: POST
+        body_format: json
+        body:
+          value: "seed"
+        status_code: 201
+      register: seed_response
+
+    - name: Set seed item id
+      ansible.builtin.set_fact:
+        seed_id: "{{ seed_response.json.id }}"
+
+    - name: Launch GET /healthz load (200 req/s)
+      ansible.builtin.shell: >
+        hey -z {{ duration }} -q 1 -c 200
+        http://{{ app_host }}:{{ app_port }}/healthz
+        > {{ results_dir }}/healthz.txt 2>&1
+      async: 30
+      poll: 0
+      register: job_healthz
+
+    - name: Launch GET /items load (400 req/s)
+      ansible.builtin.shell: >
+        hey -z {{ duration }} -q 1 -c 400
+        http://{{ app_host }}:{{ app_port }}/items
+        > {{ results_dir }}/items_get.txt 2>&1
+      async: 30
+      poll: 0
+      register: job_items_get
+
+    - name: Launch POST /items load (250 req/s)
+      ansible.builtin.shell: >
+        hey -z {{ duration }} -q 1 -c 250 -m POST
+        -H "Content-Type: application/json" -d '{"value":"loadtest"}'
+        http://{{ app_host }}:{{ app_port }}/items
+        > {{ results_dir }}/items_post.txt 2>&1
+      async: 30
+      poll: 0
+      register: job_items_post
+
+    - name: Launch PUT /items/{id} load (100 req/s)
+      ansible.builtin.shell: >
+        hey -z {{ duration }} -q 1 -c 100 -m PUT
+        -H "Content-Type: application/json" -d '{"value":"loadtest-updated"}'
+        http://{{ app_host }}:{{ app_port }}/items/{{ seed_id }}
+        > {{ results_dir }}/items_put.txt 2>&1
+      async: 30
+      poll: 0
+      register: job_items_put
+
+    - name: Launch DELETE /items/{id} load (50 req/s)
+      ansible.builtin.shell: >
+        hey -z {{ duration }} -q 1 -c 50 -m DELETE
+        http://{{ app_host }}:{{ app_port }}/items/{{ seed_id }}
+        > {{ results_dir }}/items_delete.txt 2>&1
+      async: 30
+      poll: 0
+      register: job_items_delete
+
+    - name: Wait for all load generators to finish
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 30
+      delay: 1
+      loop:
+        - "{{ job_healthz }}"
+        - "{{ job_items_get }}"
+        - "{{ job_items_post }}"
+        - "{{ job_items_put }}"
+        - "{{ job_items_delete }}"
+
+    - name: Show results directory
+      ansible.builtin.debug:
+        msg: "Results written to {{ results_dir }}"

@@ -1,0 +1,24 @@
+---
+# Standalone reset — run this manually from Semaphore before each load-test
+# run (or whenever you want a clean slate). Not chained automatically into
+# the load-test playbooks.
+- name: Reset benchmark DB state via app endpoint
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    app_host: "192.168.1.4"
+    app_port: 4000
+
+  tasks:
+    - name: POST /reset
+      ansible.builtin.uri:
+        url: "http://{{ app_host }}:{{ app_port }}/reset"
+        method: POST
+        status_code: 200
+      register: reset_response
+
+    - name: Show result
+      ansible.builtin.debug:
+        var: reset_response.json

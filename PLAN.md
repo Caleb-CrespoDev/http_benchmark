@@ -75,16 +75,16 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       See `phases/03-database.md`
 - [x] **Phase 4 — Benchmark Apps** *(manual build/deploy)*: Node 24.18.1
       LTS + Express and Go 1.26.5 apps built, both exposing `/healthz`,
-      `/items`, `POST /reset`, `/metrics`. See `phases/04-apps.md`
+      `/items` (GET/POST), `/items/{id}` (PUT/DELETE), `POST /reset`,
+      `/metrics`. See `phases/04-apps.md`
 - [x] **Phase 5 — Monitoring Stack** *(manual, not Ansible)*: Prometheus
       3.13.2 + Grafana 13.1.1 running on `noteb`, all targets up, combined
       "Benchmark Overview" dashboard provisioned. See
       `phases/05-monitoring.md`
-- [ ] **Phase 6 — Load Testing** *(the only automated phase)*: pick + install
-      load-test tool, define load matrix (1000/10s, 2000/10s, ...), Ansible
-      playbook: call app's `/reset` endpoint -> run stress-test tool ->
-      collect results -> repeat per app per load level. No become, no
-      docker commands. See `phases/06-load-testing.md`
+- [x] **Phase 6 — Load Testing** *(the only automated phase)*: `hey`
+      0.1.4, load matrix 1000/2000/5000/10000 req/10s as 4 standalone
+      playbooks hitting all 5 endpoints, plus a standalone `reset.yml`.
+      Dry-run verified end-to-end on `noteb`. See `phases/06-load-testing.md`
 - [ ] **Phase 7 — Semaphore Orchestration**: wrap the Phase 6 playbook as
       Semaphore templates/tasks so load tests can be launched and monitored
       from the UI. See `phases/07-semaphore-orchestration.md`
@@ -93,5 +93,6 @@ resumed at any point. Status legend: `[ ]` todo, `[~]` in progress, `[x]` done.
       See `phases/08-results-report.md`
 
 ## Next up
-Phase 6 — pick the load-test tool, define the load matrix, and write
-`ansible/playbooks/run-loadtest.yml`.
+Phase 7 — wrap `reset.yml` and the four `run-loadtest-*.yml` playbooks as
+Semaphore templates (with the `app` survey variable) so they're
+launchable from the UI.
