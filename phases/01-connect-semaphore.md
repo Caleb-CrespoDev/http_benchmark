@@ -22,7 +22,9 @@ project's playbooks.
       **Repository** (git remote, since Semaphore runs on a different
       server and can't use a local path on this machine)
 - [ ] Run a trivial "ping" playbook/task from Semaphore against the target
-      server to confirm end-to-end wiring works
+      server to confirm end-to-end wiring works (`ansible/playbooks/ping.yml`
+      already written, mirrors the earlier `semaphore_testing` connectivity
+      check)
 
 ## Notes
 - Everything after this phase should be launched/observed through

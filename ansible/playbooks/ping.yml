@@ -1,0 +1,21 @@
+---
+- name: Basic connectivity and facts check
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Ping host
+      ansible.builtin.ping:
+
+    - name: Show OS info
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }} ({{ ansible_facts['hostname'] }})"
+
+    - name: Show uptime
+      ansible.builtin.command: uptime
+      register: uptime_result
+      changed_when: false
+
+    - name: Print uptime
+      ansible.builtin.debug:
+        var: uptime_result.stdout
